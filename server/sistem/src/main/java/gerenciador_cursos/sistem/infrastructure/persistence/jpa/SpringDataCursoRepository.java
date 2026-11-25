@@ -1,0 +1,9 @@
+package gerenciador_cursos.sistem.infrastructure.persistence.jpa;
+
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface SpringDataCursoRepository extends JpaRepository<CursoJpaEntity, UUID> {
+    
+}
