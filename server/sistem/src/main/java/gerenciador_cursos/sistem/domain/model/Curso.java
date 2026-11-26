@@ -7,8 +7,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter 
 public class Curso {
    private CursoId id;
    private String titulo;

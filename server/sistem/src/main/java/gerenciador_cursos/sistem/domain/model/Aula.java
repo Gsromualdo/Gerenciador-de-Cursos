@@ -1,8 +1,10 @@
 package gerenciador_cursos.sistem.domain.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter 
 public class Aula {
     private AulaId id;
     private String nomeAula;

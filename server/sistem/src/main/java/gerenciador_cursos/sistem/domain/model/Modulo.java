@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Objects;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter 
 public class Modulo {
     private ModuloId id;
     private String nomeModulo;
@@ -40,6 +42,7 @@ public class Modulo {
     }
 
     public void removerAula(AulaId aulaId) {
+        
         if (aulaId == null) {
             throw new IllegalArgumentException("O identificador da aula não pode ser nulo");
         }
