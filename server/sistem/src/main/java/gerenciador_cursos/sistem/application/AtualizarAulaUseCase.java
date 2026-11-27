@@ -21,7 +21,14 @@ public class AtualizarAulaUseCase {
         this.cursoRepository = cursoRepository;
     }
 
-    public AulaOutput execute(CursoId cursoId, UUID moduloId, UUID aulaId, String nomeAula, Integer ordem) {
+    public AulaOutput execute(
+            CursoId cursoId,
+            UUID moduloId,
+            UUID aulaId,
+            String nomeAula,
+            Integer duracao,
+            Integer ordem
+    ) {
         Curso curso = cursoRepository.buscarPorId(cursoId)
                 .orElseThrow(() -> new CursoNaoEncontradoException(cursoId));
 
@@ -39,6 +46,9 @@ public class AtualizarAulaUseCase {
 
         if (nomeAula != null && !nomeAula.isBlank()) {
             aula.setNomeAula(nomeAula);
+        }
+        if (duracao != null) {
+            aula.setDuracao(duracao);
         }
         if (ordem != null) {
             aula.setOrdem(ordem);

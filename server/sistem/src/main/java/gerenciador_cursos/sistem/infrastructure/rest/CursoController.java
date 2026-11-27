@@ -238,7 +238,7 @@ public class CursoController {
                 CursoId idCurso = new CursoId(cursoId);
                 ModuloId idModulo = new ModuloId(moduloId);
                 AulaId idAula = new AulaId(aulaId);
-                excluirAulaUseCase.execute(idCurso,idModulo,idAula);
+                excluirAulaUseCase.execute(idCurso, idModulo, idAula);
                 return ResponseEntity.noContent().build();
         }
 
@@ -290,6 +290,7 @@ public class CursoController {
                                 moduloId,
                                 aulaId,
                                 request.nomeAula(),
+                                request.duracao(),
                                 request.ordem());
 
                 return ResponseEntity.ok(new AulaResponse(
