@@ -1,0 +1,254 @@
+<section class="space-y-6">
+  <div class="flex items-center justify-between gap-4">
+    <a
+      routerLink="/cursos"
+      class="text-sm font-medium text-slate-400 hover:text-white"
+    >
+      ← Voltar para cursos
+    </a>
+
+    @if (curso(); as c) {
+      <div class="flex items-center gap-2">
+        <a
+          [routerLink]="['/cursos', c.id, 'editar']"
+          class="rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-indigo-300 hover:bg-slate-800"
+        >
+          Editar
+        </a>
+        <button
+          type="button"
+          (click)="excluirCurso()"
+          [disabled]="excluindoId() === c.id"
+          class="rounded-lg bg-red-600/90 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {{ excluindoId() === c.id ? 'Excluindo...' : 'Excluir curso' }}
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (carregando()) {
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-6 text-sm text-slate-400">
+      Carregando detalhes do curso...
+    </div>
+  } @else if (erro()) {
+    <div class="rounded-xl border border-red-800 bg-red-950/60 p-4 text-sm text-red-300">
+      {{ erro() }}
+    </div>
+  } @else if (curso(); as c) {
+    <article class="space-y-3 rounded-xl border border-slate-800 bg-slate-900 p-6">
+      <div class="flex items-start justify-between gap-4">
+        <h1 class="text-2xl font-bold text-white">{{ c.titulo }}</h1>
+        <span
+          class="rounded-full px-3 py-1 text-xs font-medium"
+          [class]="c.status ? 'bg-emerald-950 text-emerald-300' : 'bg-slate-800 text-slate-400'"
+        >
+          {{ c.status ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+      <p class="text-sm text-slate-400">{{ c.descricao }}</p>
+    </article>
+
+    <div class="space-y-3">
+      <h2 class="text-lg font-semibold text-white">Módulos</h2>
+
+      @if (modulos().length === 0) {
+        <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-400">
+          Este curso ainda não possui módulos cadastrados.
+        </div>
+      } @else {
+        @for (modulo of modulos(); track modulo.id) {
+          <div class="rounded-xl border border-slate-800 bg-slate-900">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+              <button
+                type="button"
+                (click)="alternarModulo(modulo.id)"
+                class="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
+              >
+                <div class="min-w-0">
+                  <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">
+                    Ordem {{ modulo.ordem }}
+                  </span>
+                  <h3 class="truncate text-base font-semibold text-white">
+                    {{ modulo.nomeModulo }}
+                  </h3>
+                </div>
+                <span class="shrink-0 text-xs text-slate-400">
+                  {{ moduloExpandidoId() === modulo.id ? 'Ocultar aulas' : 'Ver aulas' }}
+                </span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  (click)="iniciarEdicaoModulo(modulo)"
+                  [disabled]="salvandoItem() || excluindoId() === modulo.id"
+                  class="rounded-lg border border-slate-700 px-2.5 py-1 text-xs font-medium text-indigo-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  (click)="excluirModulo(modulo.id)"
+                  [disabled]="excluindoId() === modulo.id || salvandoItem()"
+                  class="rounded-lg border border-red-500/30 px-2.5 py-1 text-xs font-medium text-red-400 hover:bg-red-950/60 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {{ excluindoId() === modulo.id ? 'Excluindo...' : 'Excluir módulo' }}
+                </button>
+              </div>
+            </div>
+
+            @if (editandoModuloId() === modulo.id) {
+              <div class="border-t border-slate-800 bg-slate-950/70 px-5 py-4">
+                <div class="grid gap-3 sm:grid-cols-12 sm:items-end">
+                  <div class="space-y-1 sm:col-span-8">
+                    <label class="block text-xs text-slate-400">Nome do módulo</label>
+                    <input
+                      type="text"
+                      [value]="formModulo().nomeModulo"
+                      (input)="atualizarCampoModulo('nomeModulo', $any($event.target).value)"
+                      class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div class="space-y-1 sm:col-span-4">
+                    <label class="block text-xs text-slate-400">Ordem</label>
+                    <input
+                      type="number"
+                      min="1"
+                      [value]="formModulo().ordem"
+                      (input)="atualizarCampoModulo('ordem', $any($event.target).value)"
+                      class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div class="mt-3 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="cancelarEdicaoModulo()"
+                    [disabled]="salvandoItem()"
+                    class="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    (click)="salvarEdicaoModulo(modulo.id)"
+                    [disabled]="salvandoItem()"
+                    class="rounded-lg bg-indigo-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-400 disabled:opacity-50"
+                  >
+                    {{ salvandoItem() ? 'Salvando...' : 'Salvar módulo' }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (moduloExpandidoId() === modulo.id) {
+              <div class="border-t border-slate-800 bg-slate-950/50 px-5 py-4">
+                @if (aulasPorModulo()[modulo.id]; as aulas) {
+                  @if (aulas.length === 0) {
+                    <p class="text-sm text-slate-400">Nenhuma aula neste módulo.</p>
+                  } @else {
+                    <ul class="space-y-2">
+                      @for (aula of aulas; track aula.id) {
+                        <li class="rounded-lg border border-slate-800/80 bg-slate-900/80 px-4 py-2.5 text-sm">
+                          @if (editandoAulaId() === aula.id) {
+                            <div class="space-y-3">
+                              <div class="grid gap-3 sm:grid-cols-12 sm:items-end">
+                                <div class="space-y-1 sm:col-span-6">
+                                  <label class="block text-xs text-slate-400">Nome da aula</label>
+                                  <input
+                                    type="text"
+                                    [value]="formAula().nomeAula"
+                                    (input)="atualizarCampoAula('nomeAula', $any($event.target).value)"
+                                    class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                                  />
+                                </div>
+
+                                <div class="space-y-1 sm:col-span-3">
+                                  <label class="block text-xs text-slate-400">Duração (min)</label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    [value]="formAula().duracao"
+                                    (input)="atualizarCampoAula('duracao', $any($event.target).value)"
+                                    class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                                  />
+                                </div>
+
+                                <div class="space-y-1 sm:col-span-3">
+                                  <label class="block text-xs text-slate-400">Ordem</label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    [value]="formAula().ordem"
+                                    (input)="atualizarCampoAula('ordem', $any($event.target).value)"
+                                    class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div class="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  (click)="cancelarEdicaoAula()"
+                                  [disabled]="salvandoItem()"
+                                  class="rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+                                >
+                                  Cancelar
+                                </button>
+                                <button
+                                  type="button"
+                                  (click)="salvarEdicaoAula(modulo.id, aula.id)"
+                                  [disabled]="salvandoItem()"
+                                  class="rounded-lg bg-indigo-500 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-400 disabled:opacity-50"
+                                >
+                                  {{ salvandoItem() ? 'Salvando...' : 'Salvar aula' }}
+                                </button>
+                              </div>
+                            </div>
+                          } @else {
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                              <span class="text-slate-200">
+                                {{ aula.ordem }}. {{ aula.nomeAula }}
+                              </span>
+
+                              <div class="flex items-center gap-3">
+                                @if (aula.duracao) {
+                                  <span class="text-xs text-slate-400">Duração: {{ aula.duracao }} minutos</span>
+                                }
+                                <button
+                                  type="button"
+                                  (click)="iniciarEdicaoAula(aula)"
+                                  [disabled]="salvandoItem() || excluindoId() === aula.id"
+                                  class="rounded px-2 py-1 text-xs font-medium text-indigo-300 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  (click)="excluirAula(modulo.id, aula.id)"
+                                  [disabled]="excluindoId() === aula.id || salvandoItem()"
+                                  class="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-950/60 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  {{ excluindoId() === aula.id ? 'Excluindo...' : 'Excluir' }}
+                                </button>
+                              </div>
+                            </div>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  }
+                } @else {
+                  <p class="text-sm text-slate-400">Carregando aulas...</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
+</section>
